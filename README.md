@@ -8,7 +8,7 @@ A simple patch and patcher for patching meteor (http://meteor.com) to work on Cl
 
 Tested and created for Meteor 0.5.6
 
-Patch was derived from the Diff published by actmp (at http://c9install.meteor.com/install.html)
+Patch was derived from the Diff published by acemtp (at http://c9install.meteor.com/install.html)
 
 Instructions
 ------------
@@ -24,3 +24,20 @@ $ curl https://raw.github.com/bendavieshe3/meteor-c9-patch/master/patch-for-c9.s
 $ chmod +x patch-for-c9.sh
 $ ./patch-for-c9.sh
 `
+
+Problems?
+--------- 
+
+This is very crude. Possible improvements 
+- Provide a single curlable script that downloads the actual patch and applies it (like all the cool kids are doing)
+- release the full c9 build as actmp did
+
+Ultimately though, perhaps Meteor should be tweaked to allow a user to specify the IP as well as the port, as well as the other minor changes (eg Mongo ports). These changes would undoubtedly help other cloud platforms.
+
+Pull requests welcome!
+
+Credits
+-------
+
+Thanks to Vianney Lecroart (aka acemtp)  at http://ploki.info/ 
+Thanks to Meteor (http://meteor.com)
