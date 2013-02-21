@@ -1,0 +1,123 @@
+diff -rupN original-app/lib/mongo_runner.js fixed-app/lib/mongo_runner.js
+--- original-app/lib/mongo_runner.js	2013-02-21 13:11:13.000000000 +1000
++++ fixed-app/lib/mongo_runner.js	2013-02-21 13:10:16.000000000 +1000
+@@ -158,7 +158,7 @@ exports.launch_mongo = function (app_dir
+     }
+ 
+     var proc = child_process.spawn(mongod_path, [
+-      '--bind_ip', '127.0.0.1',
++      '--bind_ip', process.env.IP,
+       '--smallfiles',
+       '--port', port,
+       '--dbpath', data_path
+diff -rupN original-app/meteor/meteor.js fixed-app/meteor/meteor.js
+--- original-app/meteor/meteor.js	2013-02-21 13:11:13.000000000 +1000
++++ fixed-app/meteor/meteor.js	2013-02-21 13:10:16.000000000 +1000
+@@ -96,7 +96,7 @@ Fiber(function () {
+       // reparse args
+       // This help logic should probably move to run.js eventually
+       var opt = require('optimist')
+-            .alias('port', 'p').default('port', 3000)
++            .alias('port', 'p').default('port', process.env.PORT)
+             .describe('port', 'Port to listen on. NOTE: Also uses port N+1 and N+2.')
+             .boolean('production')
+             .describe('production', 'Run in production mode. Minify and bundle CSS and JS files.')
+@@ -485,7 +485,7 @@ Fiber(function () {
+             process.exit(1);
+           }
+ 
+-          var mongo_url = "mongodb://127.0.0.1:" + mongod_port + "/meteor";
++          var mongo_url = "mongodb://" + process.env.IP + ":" + mongod_port + "/meteor";
+ 
+           if (new_argv.url)
+             console.log(mongo_url);
+diff -rupN original-app/meteor/run.js fixed-app/meteor/run.js
+--- original-app/meteor/run.js	2013-02-21 13:11:13.000000000 +1000
++++ fixed-app/meteor/run.js	2013-02-21 13:10:16.000000000 +1000
+@@ -121,14 +121,14 @@ var start_proxy = function (outer_port, 
+     } else if (Status.listening) {
+       // server is listening. things are hunky dory!
+       proxy.proxyRequest(req, res, {
+-        host: '127.0.0.1', port: inner_port
++        host: process.env.IP, port: inner_port
+       });
+     } else {
+       // Not listening yet. Queue up request.
+       var buffer = httpProxy.buffer(req);
+       request_queue.push(function () {
+         proxy.proxyRequest(req, res, {
+-          host: '127.0.0.1', port: inner_port,
++          host: process.env.IP, port: inner_port,
+           buffer: buffer
+         });
+       });
+@@ -140,14 +140,14 @@ var start_proxy = function (outer_port, 
+     if (Status.listening) {
+       // server is listening. things are hunky dory!
+       p.proxy.proxyWebSocketRequest(req, socket, head, {
+-        host: '127.0.0.1', port: inner_port
++        host: process.env.IP, port: inner_port
+       });
+     } else {
+       // Not listening yet. Queue up request.
+       var buffer = httpProxy.buffer(req);
+       request_queue.push(function () {
+         p.proxy.proxyWebSocketRequest(req, socket, head, {
+-          host: '127.0.0.1', port: inner_port,
++          host: process.env.IP, port: inner_port,
+           buffer: buffer
+         });
+       });
+@@ -179,7 +179,7 @@ var start_proxy = function (outer_port, 
+     res.end('Unexpected error.');
+   });
+ 
+-  p.listen(outer_port, callback);
++  p.listen(outer_port, process.env.IP, callback);
+ };
+ 
+ ////////// MongoDB //////////
+@@ -541,16 +541,16 @@ exports.getSettings = function (filename
+ // can't continue. If you change this, remember to call
+ // watcher.destroy() as appropriate.
+ exports.run = function (app_dir, bundle_opts, port, once, settingsFile) {
+-  var outer_port = port || 3000;
+-  var inner_port = outer_port + 1;
+-  var mongo_port = outer_port + 2;
+-  var test_port = outer_port + 3;
++  var outer_port = port || process.env.PORT;
++  var inner_port = 16010;
++  var mongo_port = 16000;
++  var test_port = 16011;
+   var bundle_path = path.join(app_dir, '.meteor', 'local', 'build');
+   var test_bundle_path = path.join(app_dir, '.meteor', 'local', 'build_test');
+   // Allow override and use of external mongo. Matches code in launch_mongo.
+   var mongo_url = process.env.MONGO_URL ||
+-        ("mongodb://127.0.0.1:" + mongo_port + "/meteor");
+-  var test_mongo_url = "mongodb://127.0.0.1:" + mongo_port + "/meteor_test";
++        ("mongodb://" + process.env.IP + ":" + mongo_port + "/meteor");
++  var test_mongo_url = "mongodb://" + process.env.IP + ":" + mongo_port + "/meteor_test";
+ 
+   var test_bundle_opts;
+ 
+@@ -760,7 +760,7 @@ exports.run = function (app_dir, bundle_
+       process.stdout.write("Initializing mongo database... this may take a moment.\n");
+     }, 3000);
+     process_startup_printer = function () {
+-      process.stdout.write("Running on: http://localhost:" + outer_port + "/\n");
++      process.stdout.write("Running on: http://" + process.env.IP + ":" + outer_port + "/\n");
+     };
+ 
+     start_update_checks();
+diff -rupN original-app/server/server.js fixed-app/server/server.js
+--- original-app/server/server.js	2013-02-21 13:11:13.000000000 +1000
++++ fixed-app/server/server.js	2013-02-21 13:10:16.000000000 +1000
+@@ -150,7 +150,7 @@ var run = function () {
+     _.each(__meteor_bootstrap__.startup_hooks, function (x) { x(); });
+ 
+     // only start listening after all the startup code has run.
+-    app.listen(port, function() {
++    app.listen(port, process.env.IP, function() {
+       if (argv.keepalive)
+         console.log("LISTENING"); // must match run.js
+     });
