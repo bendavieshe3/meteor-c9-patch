@@ -2,4 +2,6 @@
 
 cp ./c9-meteor.patch ~/meteor/app
 cd ~/meteor/app
-patch -p1 < c9-meteor.patch
+patch -sf -p1 < c9-meteor.patch
+rm ./c9-meteor.patch
+rm -rf **/*.orig **/*.rej
