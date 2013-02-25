@@ -6,7 +6,7 @@ About
 
 A simple patch and patcher for patching meteor (http://meteor.com) to work on Cloud 9 IDE (http://c9.io)
 
-Tested and created for Meteor 0.5.6
+Tested and created for Meteor 0.5.6, 0.5.7
 
 Patch was derived from the Diff published by acemtp (at http://c9install.meteor.com/install.html)
 
